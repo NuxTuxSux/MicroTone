@@ -1,2 +1,2 @@
-KeyCodes: keycodes.yaml
+KeyCodes: isomorphic.kb
 FreqsSystem: "lambda x: midi.midi_to_frequency(x)"
