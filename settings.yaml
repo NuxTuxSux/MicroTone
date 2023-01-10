@@ -1,0 +1,2 @@
+KeyCodes: keycodes.yaml
+FreqsSystem: "lambda x: midi.midi_to_frequency(x)"

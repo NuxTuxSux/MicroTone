@@ -22,24 +22,32 @@ st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output=True, frames_per_b
 nd = {}
 
 # dizionario per mappare i tasti della tastiera a delle note
-key_to_note = {
-    pygame.K_a: 60,  # nota C
-    pygame.K_w: 61,  # nota C#
-    pygame.K_s: 62,  # nota D
-    pygame.K_e: 63,  # nota D#
-    pygame.K_d: 64,  # nota E
-    pygame.K_f: 65,  # nota F
-    pygame.K_t: 66,  # nota F#
-    pygame.K_g: 67,  # nota G
-    pygame.K_y: 68,  # nota G#
-    pygame.K_h: 69,  # nota A
-    pygame.K_u: 70,  # nota A#
-    pygame.K_j: 71,  # nota B
-    pygame.K_k: 72,  # nota C (ottava successiva)
-}
 
+VOLUME = 0.9
+SETTINGS = {}
+CODES = {}
+freqFromCode = None
 
+def loadSettings(settingsfile):
+    global SETTINGS, CODES, freqFromCode
+    # load general settings
+    with open(settingsfile, 'r') as f:
+        SETTINGS = yaml.unsafe_load(f)
+    
+    # print(SETTINGS)
 
+    # load keycodes
+    with open(SETTINGS['KeyCodes'], 'r') as f:
+        kcds = yaml.safe_load(f)
+        # print(kcds)
+        for keyname in kcds:
+            CODES[getattr(pygame, 'K_' + str(keyname))] = kcds[keyname]
+    
+    # load function to get frequency from the keycode
+    freqFromCode = eval(SETTINGS['FreqsSystem'])
+    
+
+loadSettings('settings.yaml')
 try:
     # ciclo principale
     done = False
@@ -54,18 +62,18 @@ try:
                     done = True
 
                 # verifica se il tasto premuto è presente nel dizionario
-                if event.key in key_to_note:
+                if event.key in CODES:
                     # ottieni la nota corrispondente al tasto premuto
-                    note = key_to_note[event.key]
+                    note = CODES[event.key]
 
                     # aggiungi un oscillatore per il tasto premuto
                     nd[event.key] = (
-                        sin(c) * 0.1
-                        for c in count(0, (2 * pi * midi.midi_to_frequency(note)) / 44100)
+                        sin(c) * VOLUME / (len(nd))
+                        for c in count(0, (2 * pi * freqFromCode(note)) / 44100)
                     )
             if event.type == pygame.KEYUP:
                 # verifica se il tasto premuto è stato rilasciato
-                if event.key in key_to_note:
+                if event.key in CODES:
                     # rimuovi l'oscillatore per il tasto rilasciato
                     del nd[event.key]
 
