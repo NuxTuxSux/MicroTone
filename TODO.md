@@ -7,4 +7,4 @@
 - aggiornare il codice
 
 ## Varie
-- volume
+- aggiungere keymap standard
