@@ -1,2 +1,2 @@
-KeyCodes: isomorphic.kb
-FreqsSystem: "lambda x: midi.midi_to_frequency(x)"
+KeyCodes: dodecaphonic.kb
+FreqsSystem: "lambda n: 8.2 * np.power(2, n/12)"

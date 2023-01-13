@@ -1,0 +1,22 @@
+# quantomeno sul mio devo il primo tasto pare che sia BACKQUOTE
+# Tastiera classica del piano
+a: 60
+w: 61
+s: 62
+e: 63
+d: 64
+f: 65
+t: 66
+g: 67
+y: 68
+h: 69
+u: 70
+j: 71
+k: 72
+o: 73
+l: 74
+p: 75
+SEMICOLON: 76
+QUOTE: 77
+RIGHTBRACKET: 78
+HASH: 79

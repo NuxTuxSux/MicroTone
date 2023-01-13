@@ -16,7 +16,7 @@ pygame.init()
 screen = pygame.display.set_mode((400, 300))
 
 # inizializza Pyaudio
-st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output=True, frames_per_buffer=256)
+st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per_buffer = 256)
 
 # dizionario per memorizzare gli oscillatori
 nd = {}
@@ -68,7 +68,8 @@ try:
 
                     # aggiungi un oscillatore per il tasto premuto
                     nd[event.key] = (
-                        sin(c) * VOLUME / (len(nd))
+                        sin(c) * VOLUME / len(nd)
+                        # ((c/pi/2)%2 - 1) * VOLUME / len(nd)
                         for c in count(0, (2 * pi * freqFromCode(note)) / 44100)
                     )
             if event.type == pygame.KEYUP:
