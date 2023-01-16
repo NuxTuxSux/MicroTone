@@ -1,4 +1,5 @@
 import itertools, abc
+import numpy as np
 from abc import ABC, abstractmethod, abstractproperty
 
 class Signal(ABC):
@@ -54,13 +55,30 @@ class Seq(Signal):
         self.seq = self.seq[1:]
 
 class Linear(Signal):
-    def __init__(self, a, b, lenght, **kwargs):
-        super().__init__(**kwargs)
-        self.length = lenght
-        self.i = 0
-        self.delta = (b-a)/lenght
-        self.val = a - self.delta
+    # def __init__(self, a, b, length, **kwargs):
+    #     super().__init__(**kwargs)
+    #     self.length = length
+    #     self.i = 0
+    #     self.delta = (b-a)/length
+    #     self.val = a - self.delta
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(**kwargs)
+        self.i = 0
+        if len(args) == 2:
+            self.stop = args[0]
+            self.length = args[1]
+            self.startingFrom(0)
+        elif len(args) == 3:
+            self.stop = args[1]
+            self.length = args[2]
+            self.startingFrom(args[0])
+        
+    def startingFrom(self, start):
+        self.delta = (self.stop - start) / self.length
+        self.val = start - self.delta
+        return self
+
     def _step(self):
         self.i += 1
         self.val += self.delta
@@ -81,7 +99,17 @@ class Conj(Signal):
         if not self.signals[0].active:
             self.signals = self.signals[1:]
 
-        
+class Combine(Signal):
+    def __init__(self, *signals, by = np.sum, **kwargs):
+        super().__init__(**kwargs)
+        self.signals = signals
+        self.by = by
+    
+    def hasNext(self):
+        return all(signal.hasNext() for signal in self.signals)
+    
+    def _step(self):
+        self.val = self.by([next(signal) for signal in self.signals])
 
 
 # # def ADSR(Signal):
