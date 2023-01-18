@@ -22,12 +22,19 @@ class Signal(ABC):
         return self._controlValue and self.hasNext()
 
     def __next__(self):
-        if self.active and self._controlValue:
+        if self.active:
             self._step()
             return self.val
-        else:
-            return None
+        #     v = self.val
+        #     self._step()
+        # else:
+        #     v = None
+        # return v
     
+    
+    def setStart(self, _):
+        pass
+
     @abstractmethod
     def _step(self):
         # update any eventual state and signal value
@@ -45,22 +52,17 @@ class Seq(Signal):
     def __init__(self, seq, **kwargs):
         super().__init__(**kwargs)
         self.seq = seq
+#        if self.seq:
+ #           self._step()
 
     def hasNext(self):
         return len(self.seq) > 0
 
     def _step(self):
-        # questo potrebbe essere il pattern generico di __next__, mi basta definire active e nextval e aggiungere anche il controllo
         self.val = self.seq[0]
         self.seq = self.seq[1:]
 
-class Linear(Signal):
-    # def __init__(self, a, b, length, **kwargs):
-    #     super().__init__(**kwargs)
-    #     self.length = length
-    #     self.i = 0
-    #     self.delta = (b-a)/length
-    #     self.val = a - self.delta
+class Incremental(Signal):
     
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
@@ -68,23 +70,24 @@ class Linear(Signal):
         if len(args) == 2:
             self.stop = args[0]
             self.length = args[1]
-            self.startingFrom(0)
+            self.setStart(0)
         elif len(args) == 3:
             self.stop = args[1]
             self.length = args[2]
-            self.startingFrom(args[0])
+            self.setStart(args[0])
         
-    def startingFrom(self, start):
-        self.delta = (self.stop - start) / self.length
-        self.val = start - self.delta
-        return self
+    def setStart(self, start):
+        # not the best way I guess
+        if start != None:
+            self.delta = (self.stop - start) / self.length
+            self.val = start - self.delta
 
     def _step(self):
         self.i += 1
         self.val += self.delta
     
     def hasNext(self):
-        return self.i < self.length
+        return self.i <= self.length
 
 class Conj(Signal):
     def __init__(self, *signals, **kwargs):
@@ -95,9 +98,30 @@ class Conj(Signal):
         return self.signals and self.signals[0].hasNext()
 
     def _step(self):
-        self.val = next(self.signals[0])
-        if not self.signals[0].active:
+        if self.signals[0].active:
+            self.val = next(self.signals[0])
+        else: 
             self.signals = self.signals[1:]
+            if self.signals:
+                self.signals[0].setStart(self.val)
+                self.val = next(self.signals[0])
+            else:
+                self.val = None
+
+class Loop(Signal):
+    # make a signal looping over a sequence
+    def __init__(self, seq, **kwargs):
+        super().__init__(**kwargs)
+        self.seq = seq
+        self.i = 0
+
+    def hasNext(self):
+        return True
+
+    def _step(self):
+        self.val = self.seq[self.i]
+        self.i = (self.i + 1) % len(self.seq)
+
 
 class Combine(Signal):
     def __init__(self, *signals, by = np.sum, **kwargs):
@@ -112,13 +136,32 @@ class Combine(Signal):
         self.val = self.by([next(signal) for signal in self.signals])
 
 
-# # def ADSR(Signal):
-#     # def __init__(self, Alen, Dlen, Slev, Rlen):
+def ADSR(Alen, Dlen, Slev, Rlen, *, control):
+    return Conj(
+        Incremental(1, Alen, control = control),
+        Incremental(Slev, Dlen, control = control),
+        Loop([Slev], control = control),
+        Incremental(0, Rlen)
+    )
 
 
 
-
-x = Linear(10, 2, 8)
-y = Linear(2, 4, 3)
+x = Incremental(10, 2, 8)
+y = Incremental(2, 4, 3)
 c = Seq([True, True, True, True, True, True, True, True, True, True, True, False, False])
 z = Conj(x,Seq([1,2,3,4,5,6], control = c),y)
+
+AL = 4
+DL = 2
+SL = 0.5
+RL = 6
+
+ctrl = Seq([True]*13 + [False] * 3)
+a = Incremental(8, 2, control = ctrl)
+b = Incremental(2,4, control = ctrl)
+s = Conj(a,b)
+
+c = Seq([True]*4+[False]*2)
+i = Incremental(-1,4)
+l = Loop([0,1],control = c)
+x = Conj(l,i)
