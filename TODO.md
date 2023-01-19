@@ -1,17 +1,11 @@
-## Gestire Envelope
-- Aggiungere al file impostazioni envelope e poi caricarlo
-- Al key-down attack, etc, e poi al key-up (ADSR)
+## Envelope handling
+- Add envelope parameters in settings.
 
-## Oscillatori
-- rendere parametrico l'oscillatore (nelle impostazioni?)
+## Oscillators
+- Write oscillators.py defining several common oscillators as signals (aggiungere anche fase)
 
-## Ottave
-- inserire nelle impostazioni estensione di "ottava"
-- aggiornare il codice
+## Octave extension
+= add "interval extension" to define ad octave extension (settings and implementation)
 
-## Varie
-- aggiungere fase?
+## Various
 
-## Idee
-- Cambio radicale. Creare classe signal e convertire tutto in signals che si sommano, moltiplicano, pluggano
-- I parametri - quantomeno di Linear - devono essere istanziati al run e non alla creazione dell'oggetto

@@ -5,10 +5,11 @@ from abc import ABC, abstractmethod, abstractproperty
 class Signal(ABC):
     # an abastract class wich describe a general signal
     
-    def __init__(self, control = None):
+    def __init__(self, control = None, amplitude = .9):
         # set the control signal and the initial value
         # NOTE: a signal don't consume its control (useful for attaching a control to several signals)
         self.control = control
+        self.amplitude = amplitude
         self.val = None
 
     @property
@@ -24,7 +25,7 @@ class Signal(ABC):
     def __next__(self):
         if self.active:
             self._step()
-            return self.val
+            return self.amplitude * self.val
         #     v = self.val
         #     self._step()
         # else:
@@ -124,26 +125,41 @@ class Loop(Signal):
 
 
 class Combine(Signal):
-    def __init__(self, *signals, by = np.sum, **kwargs):
+    # modificare in modo che elimini i segnali morti
+    def __init__(self, signals = {}, by = np.sum, **kwargs):
         super().__init__(**kwargs)
-        self.signals = signals
+        if signals:
+            self.signals = signals
+        else:
+            self.signals = {}
         self.by = by
     
     def hasNext(self):
-        return all(signal.hasNext() for signal in self.signals)
+        return all(signal.hasNext() for _, signal in self.signals.items())
     
+    def add(self, key, signal):
+        self.signals[key] = signal
+
+    def remove(self, key):
+        del self.signals[key]
+
     def _step(self):
-        self.val = self.by([next(signal) for signal in self.signals])
+        self.val = self.by(list(filter(lambda x: x != None, [next(signal) for _, signal in self.signals.items()])))
+    
+    def flush(self):
+        self.signals = dict([(k,v) for k,v in self.signals.items() if v.active])
 
 
-def ADSR(Alen, Dlen, Slev, Rlen, *, control):
+def ADSR(Alen, Dlen, Slev, Rlen, *, control, **kwargs):
     return Conj(
-        Incremental(1, Alen, control = control),
-        Incremental(Slev, Dlen, control = control),
-        Loop([Slev], control = control),
-        Incremental(0, Rlen)
+        Incremental(1, Alen, control = control, **kwargs),
+        Incremental(Slev, Dlen, control = control, **kwargs),
+        Loop([Slev], control = control, **kwargs),
+        Incremental(0, Rlen, **kwargs)
     )
 
+def Silence(**kwargs):
+    return Combine(**kwargs)
 
 
 x = Incremental(10, 2, 8)
