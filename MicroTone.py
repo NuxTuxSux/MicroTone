@@ -4,7 +4,7 @@ from pygame import midi
 import pyaudio
 
 from oscillators import Sine, Oscillator
-from signals import Silence, Combine, ADSR, Loop
+from signals import Silence, Combine, ADSR, Loop, Incremental
 
 import numpy as np
 
@@ -75,8 +75,9 @@ try:
                     
                     playback.add(event.key,
                         Combine({
-                            # 'env': ADSR(10, 10, 0.9, 40, amplitude = 1.),
-                            'osc': Sine(freqFromCode(note), amplitude = OSCILLATOR_AMP, control = kSign)
+                            # 'env': ADSR(10, 10, 0.9, 40, amplitude = 1., control = kSign),
+                            'test': Incremental(0, 1, 10000)#, control = kSign),
+                            # 'osc': Sine(freqFromCode(note), amplitude = OSCILLATOR_AMP, control = kSign)
                             },
                             by = np.prod
                         )
@@ -85,14 +86,14 @@ try:
                     )
 
             if event.type == pygame.KEYUP:
-                print([keysignals[k].seq for k in keysignals])
+                # print([keysignals[k].seq for k in keysignals])
                 if event.key in CODES:
                     # remove oscillator for released key
                     # playback.remove(event.key)
                     kSign = keysignals[event.key]
                     kSign.seq = [0]
             
-            print(keysignals)
+            # print(keysignals)
             playback.flush()
 
         # write to audio out
@@ -101,9 +102,9 @@ try:
             for k in keysignals:
                 next(keysignals[k])
             v = next(playback)
-            print(v)
-            buffer.append(int((v if v else 0) * 32767))
-
+            buffer.append(int((v if v != None else 0) * 32767))
+        # if any(buffer):
+            # print(buffer)
         st.write(np.int16(buffer).tobytes())
         # st.write(
         #     np.int16(

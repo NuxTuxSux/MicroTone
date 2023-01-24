@@ -5,179 +5,154 @@ from abc import ABC, abstractmethod, abstractproperty
 class Signal(ABC):
     # an abastract class wich describe a general signal
     
-    def __init__(self, control = None, amplitude = .9):
-        # set the control signal and the initial value
-        # NOTE: a signal don't consume its control (useful for attaching a control to several signals)
-        self.control = control
-        self.amplitude = amplitude
+    def control(args):
+        # args is [controlValue, signalValue]
+        return args[1] if args[0] else None
+
+    def __init__(self):
+        self.initialized = False
         self.val = None
 
-    @property
-    def _controlValue(self):
-        # returns the control value (or true if there's no control)
-        return self.control == None or self.control.val
-    
-    @property
-    def active(self):
-        # Tells if the signal is active, based on its status or controls
-        return self._controlValue and self.hasNext()
+    def setVal(self, val):
+        self.val = val
 
+    def _initialize(self, **kwargs):
+        pass
+
+    def initialize(self, **kwargs):
+        self._initialize(**kwargs)
+        self.initialized = True
+
+    def step(self):
+        pass
+    
     def __next__(self):
-        if self.active:
-            self._step()
-            return self.amplitude * self.val
-        #     v = self.val
-        #     self._step()
-        # else:
-        #     v = None
-        # return v
+        self.step()
+        return self.val
     
-    
-    def setStart(self, _):
-        pass
-
-    @abstractmethod
-    def _step(self):
-        # update any eventual state and signal value
-        # should be called only if signal is active
-        pass
-    
-    @abstractmethod
-    def hasNext(self):
-        # tells if signal can output another value
-        pass
-
 
 class Seq(Signal):
     # make a signal out of a sequence
     def __init__(self, seq, **kwargs):
         super().__init__(**kwargs)
         self.seq = seq
-#        if self.seq:
- #           self._step()
 
-    def hasNext(self):
-        return len(self.seq) > 0
-
-    def _step(self):
-        self.val = self.seq[0]
-        self.seq = self.seq[1:]
+    def step(self):
+        if self.seq:
+            self.val = self.seq[0]
+            self.seq = self.seq[1:]
+        
 
 class Incremental(Signal):
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, to, len, **kwargs):
         super().__init__(**kwargs)
-        self.i = 0
-        if len(args) == 2:
-            self.stop = args[0]
-            self.length = args[1]
-            self.setStart(0)
-        elif len(args) == 3:
-            self.stop = args[1]
-            self.length = args[2]
-            self.setStart(args[0])
-        
-    def setStart(self, start):
-        # not the best way I guess
-        if start != None:
-            self.delta = (self.stop - start) / self.length
-            self.val = start - self.delta
+        self.to = to
+        self.len = len
 
-    def _step(self):
-        self.i += 1
-        self.val += self.delta
+    def _initialize(self, **kwargs):
+        self.val = kwargs['val']
+        self.delta = (self.to - self.val) / self.len
+
+    def step(self):
+        if self.len:
+            self.val += self.delta
+            self.len -= 1
+        else:
+            self.val = None
     
-    def hasNext(self):
-        return self.i <= self.length
 
 class Conj(Signal):
     def __init__(self, *signals, **kwargs):
         super().__init__(**kwargs)
         self.signals = signals
     
-    def hasNext(self):
-        return self.signals and self.signals[0].hasNext()
+    def _initialize(self, **kwargs):
+        self.val = kwargs['val']
 
-    def _step(self):
-        if self.signals[0].active:
-            self.val = next(self.signals[0])
-        else: 
-            self.signals = self.signals[1:]
-            if self.signals:
-                self.signals[0].setStart(self.val)
-                self.val = next(self.signals[0])
+    def step(self):                                 # it works but it's the hugliest piece of code I've ever written. Need to fix that
+        if not self.signals:
+            self.setVal(None)
+        else:
+            sig = self.signals[0]
+            if not sig.initialized:
+                sig.initialize(val = self.val)
+            v = next(sig)
+            if v == None:
+                self.signals = self.signals[1:]
+                self.step()
             else:
-                self.val = None
+                self.setVal(v)
+    
 
-class Loop(Signal):
+class Constant(Signal):
     # make a signal looping over a sequence
-    def __init__(self, seq, **kwargs):
+    def __init__(self, val0, **kwargs):
         super().__init__(**kwargs)
-        self.seq = seq
-        self.i = 0
-
-    def hasNext(self):
-        return True
-
-    def _step(self):
-        self.val = self.seq[self.i]
-        self.i = (self.i + 1) % len(self.seq)
+        self.setVal(val0)
 
 
 class Combine(Signal):
     # modificare in modo che elimini i segnali morti
-    def __init__(self, signals = {}, by = np.sum, **kwargs):
+    def __init__(self, *signals, by = np.sum, completeInput = True, **kwargs):
         super().__init__(**kwargs)
-        if signals:
-            self.signals = signals
-        else:
-            self.signals = {}
+        self.signals = signals
         self.by = by
-    
-    def hasNext(self):
-        return all(signal.hasNext() for _, signal in self.signals.items())
-    
-    def add(self, key, signal):
-        self.signals[key] = signal
+        self.completeInput = completeInput
+            
+    def _initialize(self, **kwargs):
+        for sig in self.signals:
+            sig.initialize(**kwargs)
 
-    def remove(self, key):
-        del self.signals[key]
+    def add(self, signal):
+        self.signals.append(signal)
 
-    def _step(self):
-        self.val = self.by(list(filter(lambda x: x != None, [next(signal) for _, signal in self.signals.items()])))
-    
-    def flush(self):
-        self.signals = dict([(k,v) for k,v in self.signals.items() if v.active])
+    # def remove(self, key):
+        # del self.signals[key]
+
+    def step(self):                     # I don't like it
+        vs = []
+        ss = []
+        for sig in self.signals:
+            v = next(sig)
+            if v != None:
+                vs.append(v)
+                ss.append(sig)
+            else:
+                if self.completeInput:
+                    self.signals = []
+                    self.setVal(None)
+                    return
 
 
-def ADSR(Alen, Dlen, Slev, Rlen, *, control, **kwargs):
-    return Conj(
-        Incremental(1, Alen, control = control, **kwargs),
-        Incremental(Slev, Dlen, control = control, **kwargs),
-        Loop([Slev], control = control, **kwargs),
-        Incremental(0, Rlen, **kwargs)
+        self.signals = ss
+        self.setVal(self.by(vs))
+
+def ADSR(Alen, Dlen, Slev, Rlen, *, control):
+    adsr = Conj(
+        Combine(
+            control,
+            Incremental(1, Alen),
+            by = Signal.control),
+        Combine(
+            control,
+            Incremental(Slev, Dlen),
+            by = Signal.control),
+        Combine(
+            control,
+            Constant(Slev),
+            by = Signal.control),
+        Incremental(0, Rlen)
     )
+    adsr.initialize(val = 0)
+    return adsr
 
-def Silence(**kwargs):
-    return Combine(**kwargs)
 
-
-x = Incremental(10, 2, 8)
-y = Incremental(2, 4, 3)
-c = Seq([True, True, True, True, True, True, True, True, True, True, True, False, False])
-z = Conj(x,Seq([1,2,3,4,5,6], control = c),y)
 
 AL = 4
 DL = 2
 SL = 0.5
 RL = 6
 
-ctrl = Seq([True]*13 + [False] * 3)
-a = Incremental(8, 2, control = ctrl)
-b = Incremental(2,4, control = ctrl)
-s = Conj(a,b)
-
-c = Seq([True]*4+[False]*2)
-i = Incremental(-1,4)
-l = Loop([0,1],control = c)
-x = Conj(l,i)
+ctrl = Seq([1]*20 + [0] * 3)
+sig = ADSR(3, 3, 0.5, 5, control = ctrl)
