@@ -1,11 +1,10 @@
-## Envelope handling
-- Add envelope parameters in settings.
-
-## Oscillators
-- Write oscillators.py defining several common oscillators as signals (aggiungere anche fase)
+## First
+- Check if key signals dict grows
+- Better refactory of volume system
 
 ## Octave extension
-= add "interval extension" to define ad octave extension (settings and implementation)
+- Add "interval extension" to define an octave extension (settings and implementation)
 
-## Various
+## Oscillators
+- Define common oscillators
 

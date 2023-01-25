@@ -15,7 +15,8 @@ import yaml
 pygame.init()
 
 # open the window
-screen = pygame.display.set_mode((400, 300))
+WIDTH, HEIGHT = 800, 600
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # Pyaudio initialization
 st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per_buffer = 256)
@@ -30,13 +31,6 @@ CODES = {}
 freqFromCode = None
 
 
-# test constants
-ALen = 100
-DLen = 1200
-SLev = 0.4
-RLen = 3000
-#
-
 
 
 def loadSettings(settingsfile):
@@ -48,7 +42,6 @@ def loadSettings(settingsfile):
     # load keycodes
     with open(SETTINGS['KeyCodes'], 'r') as f:
         kcds = yaml.safe_load(f)
-        # print(kcds)
         for keyname in kcds:
             CODES[getattr(pygame, 'K_' + str(keyname))] = kcds[keyname]
     
@@ -60,6 +53,10 @@ def loadSettings(settingsfile):
 
 
 loadSettings('settings.yaml')
+
+x = 0
+nframes = 0
+
 try:
     playback = Combine(completeInput = False)
     keysignals = {}
@@ -86,7 +83,8 @@ try:
                     
                     playback.add(
                         Combine(
-                            ADSR(ALen, DLen, SLev, RLen, control = kSign),
+                            ADSR(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
+                            # Combine(Sine(freqFromCode(note)), Sine(3), by = np.prod),         # vibrato
                             Sine(freqFromCode(note)),
                             by = Signal.control
                         )
@@ -94,10 +92,8 @@ try:
                     )
 
             if event.type == pygame.KEYUP:
-                # print([keysignals[k].seq for k in keysignals])
                 if event.key in CODES:
                     # remove oscillator for released key
-                    # playback.remove(event.key)
                     kSign = keysignals[event.key]
                     kSign.setVal(None)
             
@@ -106,20 +102,29 @@ try:
         # write to audio out
         buffer = []
         for _ in range(256):
-            v = next(playback)
-            buffer.append(int((v if v != None else 0) * 32767) * OSCILLATOR_AMP)
-        # if any(buffer):
-            # print(buffer)
+            # NOTE: before here there was a check for next value not being None, now it should be useless
+            # moreover I was converting the output to int via int() but I guess numpy was doing the job immediately after
+            v = max(-MAX_VOL, min(next(playback) * OSCILLATOR_AMP, MAX_VOL))
+
+            buffer.append(v * 32767)
+            
+            if x == WIDTH-1:
+                x = 0
+                nframes += 1
+            else:
+                x += 1
+            
+            y = int((v + MAX_VOL/2) * HEIGHT)
+
+            SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
+
         st.write(np.int16(buffer).tobytes())
-        # st.write(
-        #     np.int16(
-        #         [
-        #             # write 256-values buffer, after having it converted to 16bit int
-        #             int(next(playback) * 32767)
-        #             for _ in range(256)
-        #         ]
-        #     ).tobytes()
-        # )
+        pygame.display.flip()
+
+        if nframes == 5:
+            SCREEN.fill(pygame.Color(0,0,0))
+            nframes = 0
+
 
 except KeyboardInterrupt as err:
     st.close()
