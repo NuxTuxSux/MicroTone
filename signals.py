@@ -7,7 +7,7 @@ class Signal(ABC):
     
     def control(args):
         # args is [controlValue, signalValue]
-        return args[1] if args[0] else None
+        return args[1]*args[0] if args[0] else None
 
     def __init__(self):
         self.initialized = False

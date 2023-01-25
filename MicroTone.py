@@ -4,7 +4,7 @@ from pygame import midi
 import pyaudio
 
 from oscillators import Sine, Oscillator
-from signals import Silence, Combine, ADSR, Loop, Incremental
+from signals import Combine, Constant, ADSR, Incremental, Signal
 
 import numpy as np
 
@@ -21,11 +21,23 @@ screen = pygame.display.set_mode((400, 300))
 st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per_buffer = 256)
 
 
+
+
 MAX_VOL = .9
-OSCILLATOR_AMP = .2
+OSCILLATOR_AMP = .3
 SETTINGS = {}
 CODES = {}
 freqFromCode = None
+
+
+# test constants
+ALen = 100
+DLen = 1200
+SLev = 0.4
+RLen = 3000
+#
+
+
 
 def loadSettings(settingsfile):
     global SETTINGS, CODES, freqFromCode
@@ -49,7 +61,7 @@ def loadSettings(settingsfile):
 
 loadSettings('settings.yaml')
 try:
-    playback = Silence(amplitude = MAX_VOL)
+    playback = Combine(completeInput = False)
     keysignals = {}
     # main loop
     done = False
@@ -69,19 +81,15 @@ try:
                     note = CODES[event.key]
 
                     # NOTE: DEFINE THE KEYSIGNALS AND USE THEM TO CONTROL THE OSCILLATORS
-                    kSign = Loop([1])
+                    kSign = Constant(1)
                     keysignals[event.key] = kSign
-                    next(kSign)
                     
-                    playback.add(event.key,
-                        Combine({
-                            # 'env': ADSR(10, 10, 0.9, 40, amplitude = 1., control = kSign),
-                            'test': Incremental(0, 1, 10000)#, control = kSign),
-                            # 'osc': Sine(freqFromCode(note), amplitude = OSCILLATOR_AMP, control = kSign)
-                            },
-                            by = np.prod
+                    playback.add(
+                        Combine(
+                            ADSR(ALen, DLen, SLev, RLen, control = kSign),
+                            Sine(freqFromCode(note)),
+                            by = Signal.control
                         )
-                        # Sine(freqFromCode(note), amplitude = OSCILLATOR_AMP, control = kSign)
 
                     )
 
@@ -91,18 +99,15 @@ try:
                     # remove oscillator for released key
                     # playback.remove(event.key)
                     kSign = keysignals[event.key]
-                    kSign.seq = [0]
+                    kSign.setVal(None)
             
-            # print(keysignals)
-            playback.flush()
+            # NOTE: flush the key dict?
 
         # write to audio out
         buffer = []
         for _ in range(256):
-            for k in keysignals:
-                next(keysignals[k])
             v = next(playback)
-            buffer.append(int((v if v != None else 0) * 32767))
+            buffer.append(int((v if v != None else 0) * 32767) * OSCILLATOR_AMP)
         # if any(buffer):
             # print(buffer)
         st.write(np.int16(buffer).tobytes())
