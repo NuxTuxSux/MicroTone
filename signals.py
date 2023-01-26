@@ -147,12 +147,3 @@ def ADSR(Alen, Dlen, Slev, Rlen, *, control):
     adsr.initialize(val = 0)
     return adsr
 
-
-
-AL = 4
-DL = 2
-SL = 0.5
-RL = 6
-
-ctrl = Seq([1]*20 + [0] * 3)
-sig = ADSR(3, 3, 0.5, 5, control = ctrl)

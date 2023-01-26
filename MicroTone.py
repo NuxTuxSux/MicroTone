@@ -3,7 +3,7 @@ from pygame import midi
 
 import pyaudio
 
-from oscillators import Sine, Oscillator
+from oscillators import *
 from signals import Combine, Constant, ADSR, Incremental, Signal
 
 import numpy as np
@@ -84,11 +84,13 @@ try:
                     playback.add(
                         Combine(
                             ADSR(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            # Combine(Sine(freqFromCode(note)), Sine(3), by = np.prod),         # vibrato
-                            Sine(freqFromCode(note)),
+                            Combine(
+                                SawTooth(freqFromCode(note)),
+                                Sine(freqFromCode(note)),
+                                by = lambda xs: 0.2 * xs[0] + 0.8 * xs[1]
+                            ),
                             by = Signal.control
                         )
-
                     )
 
             if event.type == pygame.KEYUP:
@@ -114,7 +116,7 @@ try:
             else:
                 x += 1
             
-            y = int((v + MAX_VOL/2) * HEIGHT)
+            y = int((MAX_VOL/2 - v) * HEIGHT)
 
             SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
 

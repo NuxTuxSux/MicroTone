@@ -21,5 +21,8 @@ class Oscillator(Signal):
         self.val = self.fun(self.t)
 
 def Sine(freq, **kwargs):
-    return Oscillator(freq, fun = np.sin, T = 2 * np.pi, **kwargs)
+    return Oscillator(freq, fun = np.sin, T = np.pi, **kwargs)
+
+def SawTooth(freq, **kwargs):
+    return Oscillator(freq, fun = lambda t: (t % 2) - 1, T = 1, **kwargs)
 
