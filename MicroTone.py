@@ -18,7 +18,7 @@ pygame.init()
 # open the window
 WIDTH, HEIGHT = 800, 600
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-AUDIO_BUFFER = 512
+AUDIO_BUFFER = 256 * 4
 
 # Pyaudio initialization
 st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per_buffer = AUDIO_BUFFER)
@@ -108,7 +108,9 @@ try:
         for fr in range(AUDIO_BUFFER):
             # NOTE: before here there was a check for next value not being None, now it should be useless
             # moreover I was converting the output to int via int() but I guess numpy was doing the job immediately after
-            v = max(-MAX_VOL, min(next(playback) * OSCILLATOR_AMP, MAX_VOL))
+            # v = max(-MAX_VOL, min(next(playback) * OSCILLATOR_AMP, MAX_VOL))
+
+            v = next(playback) * OSCILLATOR_AMP
 
             buffer.append(v * 32767)
             # recording.append(v * 32767)
