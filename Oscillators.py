@@ -26,3 +26,7 @@ def Sine(freq, **kwargs):
 def SawTooth(freq, **kwargs):
     return Oscillator(freq, fun = lambda t: (t % 2) - 1, T = 1, **kwargs)
 
+# def Trapezoidal(freq, alpha, beta, **kwargs):
+    # tr = Conj(
+        # Incremental(1, alpha)
+    # )

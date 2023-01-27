@@ -5,6 +5,7 @@ import pyaudio
 
 from oscillators import *
 from signals import Combine, Constant, ADSR, Incremental, Signal
+# from filters import AverageWindow
 
 import numpy as np
 
@@ -17,14 +18,15 @@ pygame.init()
 # open the window
 WIDTH, HEIGHT = 800, 600
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+AUDIO_BUFFER = 1024
 
 # Pyaudio initialization
-st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per_buffer = 256)
+st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per_buffer = AUDIO_BUFFER)
 
 
 
 
-MAX_VOL = .9
+MAX_VOL = .7
 OSCILLATOR_AMP = .3
 SETTINGS = {}
 CODES = {}
@@ -56,12 +58,16 @@ loadSettings('settings.yaml')
 
 x = 0
 nframes = 0
+# recording = []
 
 try:
     playback = Combine(completeInput = False)
+    # filteredPlayback = AverageWindow(playback)
+
     keysignals = {}
     # main loop
     done = False
+    frame = 0
     while not done:
         # event handling
         for event in pygame.event.get():
@@ -84,11 +90,7 @@ try:
                     playback.add(
                         Combine(
                             ADSR(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            Combine(
-                                SawTooth(freqFromCode(note)),
-                                Sine(freqFromCode(note)),
-                                by = lambda xs: 0.2 * xs[0] + 0.8 * xs[1]
-                            ),
+                            Sine(freqFromCode(note)),
                             by = Signal.control
                         )
                     )
@@ -103,29 +105,29 @@ try:
 
         # write to audio out
         buffer = []
-        for _ in range(256):
+        for fr in range(AUDIO_BUFFER):
             # NOTE: before here there was a check for next value not being None, now it should be useless
             # moreover I was converting the output to int via int() but I guess numpy was doing the job immediately after
             v = max(-MAX_VOL, min(next(playback) * OSCILLATOR_AMP, MAX_VOL))
 
             buffer.append(v * 32767)
-            
+            # recording.append(v * 32767)
+
             if x == WIDTH-1:
                 x = 0
                 nframes += 1
+                pygame.display.flip()
+                SCREEN.fill(pygame.Color(0,0,0))
             else:
                 x += 1
             
-            y = int((MAX_VOL/2 - v) * HEIGHT)
+            y = int((v + 0.5) * HEIGHT)
 
             SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
 
         st.write(np.int16(buffer).tobytes())
-        pygame.display.flip()
 
-        if nframes == 5:
-            SCREEN.fill(pygame.Color(0,0,0))
-            nframes = 0
+
 
 
 except KeyboardInterrupt as err:
