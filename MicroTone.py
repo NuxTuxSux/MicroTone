@@ -18,7 +18,7 @@ pygame.init()
 # open the window
 WIDTH, HEIGHT = 800, 600
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-AUDIO_BUFFER = 1024
+AUDIO_BUFFER = 512
 
 # Pyaudio initialization
 st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per_buffer = AUDIO_BUFFER)
