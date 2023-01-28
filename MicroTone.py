@@ -26,8 +26,8 @@ st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per
 
 
 
-MAX_VOL = .7
-OSCILLATOR_AMP = .3
+MAX_VOL = .9
+OSCILLATOR_AMP = .2
 SETTINGS = {}
 CODES = {}
 freqFromCode = None
@@ -57,7 +57,8 @@ def loadSettings(settingsfile):
 loadSettings('settings.yaml')
 
 x = 0
-nframes = 0
+y0 = 0
+
 # recording = []
 
 def mymean(args):
@@ -121,17 +122,21 @@ try:
             buffer.append(v * 32767)
             # recording.append(v * 32767)
 
-            if x == WIDTH-1:
+            if x == WIDTH:
                 x = 0
-                nframes += 1
                 pygame.display.flip()
                 SCREEN.fill(pygame.Color(0,0,0))
-            else:
-                x += 1
-            
-            y = int((v + 0.5) * HEIGHT)
 
-            SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
+            x += 1
+            
+            
+            if x % 15 == 0:
+                y = int((v + 0.5) * HEIGHT)
+                pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-15,y0), (x,y))
+                y0 = y
+            # SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
+            
+            
 
         st.write(np.int16(buffer).tobytes())
 

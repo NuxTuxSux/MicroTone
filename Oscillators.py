@@ -21,7 +21,7 @@ class Oscillator(Signal):
         self.val = self.fun(self.t)
 
 def Sine(freq, **kwargs):
-    hpi = 3.14/2
+    hpi = 1.570795
     def apprSin(t):
         t %= 6.283
         if t > hpi:
