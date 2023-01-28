@@ -25,7 +25,7 @@ def Sine(freq, **kwargs):
     def apprSin(t):
         t %= 6.283
         if t > hpi:
-            t = 3.14-t
+            t = 3.1415-t
         # return t-t*t*t/6+t*t*t*t*t/120-t*t*t*t*t*t*t/5040
         ts = t*t
         return t*(1-ts*(.166667-ts*(.008333-.000198*ts)))
