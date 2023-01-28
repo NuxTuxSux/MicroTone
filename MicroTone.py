@@ -19,9 +19,10 @@ pygame.init()
 WIDTH, HEIGHT = 800, 600
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 AUDIO_BUFFER = 256 * 4
+SAMPLE_RATE = Oscillator.SAMPLE_RATE
 
 # Pyaudio initialization
-st = pyaudio.PyAudio().open(44100, 1, pyaudio.paInt16, output = True, frames_per_buffer = AUDIO_BUFFER)
+st = pyaudio.PyAudio().open(SAMPLE_RATE, 1, pyaudio.paInt16, output = True, frames_per_buffer = AUDIO_BUFFER)
 
 
 

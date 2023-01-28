@@ -1,10 +1,11 @@
 from signals import Signal
 import numpy as np
 
-SAMPLE_RATE = 44100
 
 
 class Oscillator(Signal):
+    SAMPLE_RATE = 44100
+
     # need to make all continuous' parameters pluggable by other signals
     def __init__(self, freq, fun, T, phase = 0, **kwargs):
         super().__init__(**kwargs)
@@ -13,7 +14,7 @@ class Oscillator(Signal):
         self.fun = fun
         self.phase = phase
         self.t = phase
-        self.delta = T * freq / SAMPLE_RATE
+        self.delta = T * freq / Oscillator.SAMPLE_RATE
     
     
     def step(self):
@@ -29,8 +30,8 @@ def Sine(freq, **kwargs):
         # return t-t*t*t/6+t*t*t*t*t/120-t*t*t*t*t*t*t/5040
         ts = t*t
         return t*(1-ts*(.166667-ts*(.008333-.000198*ts)))
-    # return Oscillator(freq, fun = np.sin, T = np.pi, **kwargs)
-    return Oscillator(freq, fun = apprSin, T = np.pi, **kwargs)
+    return Oscillator(freq, fun = np.sin, T = np.pi, **kwargs)
+    # return Oscillator(freq, fun = apprSin, T = np.pi, **kwargs)
 
 def SawTooth(freq, **kwargs):
     return Oscillator(freq, fun = lambda t: (t % 2) - 1, T = 1, **kwargs)
