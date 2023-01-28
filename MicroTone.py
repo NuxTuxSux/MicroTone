@@ -60,6 +60,12 @@ x = 0
 nframes = 0
 # recording = []
 
+def mymean(args):
+    if len(args):
+        return np.mean(args)
+    else:
+        return 0
+
 try:
     playback = Combine(completeInput = False)
     # filteredPlayback = AverageWindow(playback)
