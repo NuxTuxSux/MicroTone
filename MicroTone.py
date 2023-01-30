@@ -4,7 +4,7 @@ from pygame import midi
 import pyaudio
 
 from oscillators import *
-from signals import Combine, Constant, ADSR, Incremental, Signal
+from signals import Combine, Constant, ADSR, ADSREnvelope, Incremental, Signal
 # from filters import AverageWindow
 
 import numpy as np
@@ -97,7 +97,7 @@ try:
                     
                     playback.add(
                         Combine(
-                            ADSR(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
+                            ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
                             Sine(freqFromCode(note)),
                             by = Signal.control
                         )
@@ -131,9 +131,9 @@ try:
             x += 1
             
             
-            if x % 15 == 0:
+            if x % 10 == 0:
                 y = int((v + 0.5) * HEIGHT)
-                pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-15,y0), (x,y))
+                pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-10,y0), (x,y))
                 y0 = y
             # SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
             

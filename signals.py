@@ -133,14 +133,14 @@ class ADSREnvelope(Signal):
         super().__init__(**kwargs)
         self.t = 0
         self.attack = Incremental(1, Alen)
-        self.attack.setVal(0)
-        self.Alen = Alen
+        self.attack.initialize(val = 0)
         self.decay = Incremental(Slev, Dlen)
-        self.Dlen = Dlen
-        self.Slev = Slev
         self.release = Incremental(0, Rlen)
-        self.Rlen = Rlen
+        self.Slev = Slev
         self.state = 'A'
+        self.control = control
+        self.val = 0
+
     
     def gorelease(self):
         self.state = 'R'
@@ -153,30 +153,30 @@ class ADSREnvelope(Signal):
             if next(self.control):
                 v = next(self.attack)
                 if v:
-                    return v
+                    self.val = v
                 else:
                     self.state = 'D'
                     self.decay.initialize(val = self.val)
-                    return self.step()
+                    self.val = next(self.decay)
             else:
-                return self.gorelease()
+                self.val = self.gorelease()
         elif self.state == 'D':
             if next(self.control):
                 v = next(self.decay)
                 if v:
-                    return v
+                    self.val = v
                 else:
                     self.state = 'S'
-                    return self.Slev
+                    self.val = self.Slev
             else:
-                 return self.gorelease()
+                self.val = self.gorelease()
         elif self.state == 'S':
             if next(self.control):
-                return self.Slev
+                self.val = self.Slev
             else:
-                return self.gorelease()
+                self.val = self.gorelease()
         else:
-            return next(self.release())
+            self.val = next(self.release)
 
 def ADSR(Alen, Dlen, Slev, Rlen, *, control):
     adsr = Conj(
