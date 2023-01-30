@@ -109,7 +109,8 @@ try:
                     kSign = keysignals[event.key]
                     kSign.setVal(None)
             
-            # NOTE: flush the key dict?
+            # NOTE: maybe one can take this off. keysignals don't grow much
+            # keysignals = dict((k,v) for (k,v) in keysignals.items() if v.val)
 
         # write to audio out
         buffer = []
