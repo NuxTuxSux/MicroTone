@@ -129,6 +129,7 @@ class Combine(Signal):
         self.setVal(self.by(vs))
 
 class ADSREnvelope(Signal):
+    # NOTE: Optimize this
     def __init__(self, Alen, Dlen, Slev, Rlen, *, control, **kwargs):
         super().__init__(**kwargs)
         self.t = 0
