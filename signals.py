@@ -128,6 +128,56 @@ class Combine(Signal):
         self.signals = ss
         self.setVal(self.by(vs))
 
+class ADSREnvelope(Signal):
+    def __init__(self, Alen, Dlen, Slev, Rlen, *, control, **kwargs):
+        super().__init__(**kwargs)
+        self.t = 0
+        self.attack = Incremental(1, Alen)
+        self.attack.setVal(0)
+        self.Alen = Alen
+        self.decay = Incremental(Slev, Dlen)
+        self.Dlen = Dlen
+        self.Slev = Slev
+        self.release = Incremental(0, Rlen)
+        self.Rlen = Rlen
+        self.state = 'A'
+    
+    def gorelease(self):
+        self.state = 'R'
+        self.release.initialize(val = self.val)
+        return next(self.release)
+
+
+    def step(self):
+        if self.state == 'A':
+            if next(self.control):
+                v = next(self.attack)
+                if v:
+                    return v
+                else:
+                    self.state = 'D'
+                    self.decay.initialize(val = self.val)
+                    return self.step()
+            else:
+                return self.gorelease()
+        elif self.state == 'D':
+            if next(self.control):
+                v = next(self.decay)
+                if v:
+                    return v
+                else:
+                    self.state = 'S'
+                    return self.Slev
+            else:
+                 return self.gorelease()
+        elif self.state == 'S':
+            if next(self.control):
+                return self.Slev
+            else:
+                return self.gorelease()
+        else:
+            return next(self.release())
+
 def ADSR(Alen, Dlen, Slev, Rlen, *, control):
     adsr = Conj(
         Combine(
