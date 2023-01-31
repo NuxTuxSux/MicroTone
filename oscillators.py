@@ -1,4 +1,4 @@
-from signals import Signal
+from signals import Signal, Incremental, Conj
 import numpy as np
 
 
@@ -35,6 +35,10 @@ def Sine(freq, **kwargs):
 
 def SawTooth(freq, **kwargs):
     return Oscillator(freq, fun = lambda t: (t % 2) - 1, T = 1, **kwargs)
+
+
+
+
 
 # def Trapezoidal(freq, alpha, beta, **kwargs):
     # tr = Conj(
