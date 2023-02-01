@@ -28,7 +28,7 @@ st = pyaudio.PyAudio().open(SAMPLE_RATE, 1, pyaudio.paInt16, output = True, fram
 
 
 MAX_VOL = .9
-OSCILLATOR_AMP = .2
+OSCILLATOR_AMP = .3
 SETTINGS = {}
 CODES = {}
 freqFromCode = None
@@ -76,6 +76,7 @@ try:
     # main loop
     done = False
     frame = 0
+
     while not done:
         # event handling
         for event in pygame.event.get():
@@ -98,7 +99,7 @@ try:
                     playback.add(
                         Combine(
                             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            Triangle(freqFromCode(note)),
+                            Sine(freqFromCode(note)),
                             Triangle(3),
                             by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
                         )
@@ -115,7 +116,7 @@ try:
 
         # write to audio out
         buffer = []
-        for fr in range(AUDIO_BUFFER):
+        for _ in range(AUDIO_BUFFER):
             # NOTE: before here there was a check for next value not being None, now it should be useless
             # moreover I was converting the output to int via int() but I guess numpy was doing the job immediately after
             # v = max(-MAX_VOL, min(next(playback) * OSCILLATOR_AMP, MAX_VOL))
@@ -127,8 +128,8 @@ try:
 
             if x == WIDTH:
                 x = 0
-                pygame.display.flip()
-                SCREEN.fill(pygame.Color(0,0,0))
+                frame += 1
+                # print(frame)
 
             x += 1
             
@@ -143,6 +144,11 @@ try:
 
         st.write(np.int16(buffer).tobytes())
 
+            
+        if frame >= 4:
+            frame = 0
+            pygame.display.flip()
+            SCREEN.fill(pygame.Color(0,0,0))
 
 
 
