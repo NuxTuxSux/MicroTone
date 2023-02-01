@@ -68,7 +68,8 @@ class Conj(Signal):
         self.signals = signals
     
     def _initialize(self, **kwargs):
-        self.val = kwargs['val']
+        # self.val = kwargs['val']
+        self.signals[0].initialize(**kwargs)
 
     def step(self):                                 # it works but it's the hugliest piece of code I've ever written. Need to fix that
         if not self.signals:
@@ -91,6 +92,33 @@ class Constant(Signal):
         super().__init__(**kwargs)
         self.setVal(val0)
 
+
+class Loop(Signal):
+    def __init__(self, signal, **kwargs):
+        super().__init__(**kwargs)
+        self.signal = signal
+        self.sampled = []
+        self.sampling = True
+        self.i = -1
+        self.N = -1
+
+    def _initialize(self, **kwargs):
+        self.signal.initialize(val = kwargs['val'])
+
+    def step(self):
+        if self.sampling:
+            v = next(self.signal)
+            if v:
+                self.sampled.append(v)
+                self.setVal(v)
+            else:
+                self.sampling = False
+                self.N = len(self.sampled)
+                self.setVal(self.sampled[0])
+                self.i = 0
+        else:
+            self.i = (self.i + 1) % self.N
+            self.setVal(self.sampled[self.i])
 
 class Combine(Signal):
     # modificare in modo che elimini i segnali morti

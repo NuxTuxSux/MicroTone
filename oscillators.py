@@ -1,4 +1,4 @@
-from signals import Signal, Incremental, Conj
+from signals import Signal, Incremental, Conj, Loop
 import numpy as np
 
 
@@ -36,6 +36,11 @@ def Sine(freq, **kwargs):
 def SawTooth(freq, **kwargs):
     return Oscillator(freq, fun = lambda t: (t % 2) - 1, T = 1, **kwargs)
 
+def Triangle(freq, **kwargs):
+    Tq = int(Oscillator.SAMPLE_RATE / freq / 4)
+    tr = Loop(Conj(Incremental(1, Tq), Incremental(-1, 2 * Tq), Incremental(0, Tq)))
+    tr.initialize(val = 0)
+    return tr
 
 
 

@@ -98,7 +98,7 @@ try:
                     playback.add(
                         Combine(
                             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            Sine(freqFromCode(note)),
+                            Triangle(freqFromCode(note)),
                             by = Signal.control
                         )
                     )
@@ -132,9 +132,9 @@ try:
             x += 1
             
             
-            if x % 10 == 0:
+            if x % 6 == 0:
                 y = int((v + 0.5) * HEIGHT)
-                pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-10,y0), (x,y))
+                pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-6,y0), (x,y))
                 y0 = y
             # SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
             
