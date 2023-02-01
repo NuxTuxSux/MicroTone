@@ -99,7 +99,8 @@ try:
                         Combine(
                             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
                             Triangle(freqFromCode(note)),
-                            by = Signal.control
+                            Triangle(3),
+                            by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
                         )
                     )
 

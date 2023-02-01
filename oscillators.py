@@ -36,13 +36,19 @@ def Sine(freq, **kwargs):
 def SawTooth(freq, **kwargs):
     return Oscillator(freq, fun = lambda t: (t % 2) - 1, T = 1, **kwargs)
 
+
 def Triangle(freq, **kwargs):
-    Tq = int(Oscillator.SAMPLE_RATE / freq / 4)
-    tr = Loop(Conj(Incremental(1, Tq), Incremental(-1, 2 * Tq), Incremental(0, Tq)))
-    tr.initialize(val = 0)
-    return tr
+    def trf(x):
+        x = x % 4
+        if x < 2:
+            return x - 1
+        else:
+            return 3 - x
+    return Oscillator(freq, fun = trf, T = 4, **kwargs)
 
 
+def Square(freq, **kwargs):
+    return Oscillator(freq, fun = lambda t: 1 if t%1 < .5 else -1, T = 1, **kwargs)
 
 
 # def Trapezoidal(freq, alpha, beta, **kwargs):

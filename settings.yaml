@@ -1,7 +1,7 @@
 KeyCodes: dodecaphonic.kb
 FreqsSystem: "lambda n: 8.2 * np.power(2, n/12)"
 
-ALen: 800
+ALen: 1000
 DLen: 1000
 SLev: 0.5
-RLen: 24000
+RLen: 30000
