@@ -52,6 +52,22 @@ def loadSettings(settingsfile):
     freqFromCode = eval(SETTINGS['FreqsSystem'])
     
 
+def sphericalOscScope(t,v):
+    R = 200
+    T0 = SAMPLE_RATE/freqFromCode(60)    # sistemare
+    ex = 400
+    ey  = 300
+    ez = -800
+
+    x = R * np.cos(np.pi*2*v/HEIGHT)*np.cos(2*np.pi*t/T0)
+    y = R * np.sin(np.pi*2*v/HEIGHT)
+    z = R * np.cos(np.pi*2*v/HEIGHT)*np.sin(2*np.pi*t/T0)
+    
+    l = ez/(ez-z)
+    xp = ex + (l * x - ex) + ex
+    yp = ey + (l * y - ey) + ey
+    return (xp, yp)
+
 
 
 
@@ -99,9 +115,11 @@ try:
                     playback.add(
                         Combine(
                             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            Sine(freqFromCode(note)),
-                            Triangle(3),
-                            by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
+                            SawTooth(freqFromCode(note)),
+                            # SawTooth(freqFromCode(note)),
+                            # Triangle(3),
+                            # by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
+                            by = Oscillator.control
                         )
                     )
 
@@ -126,7 +144,7 @@ try:
             buffer.append(v * 32767)
             # recording.append(v * 32767)
 
-            if x == WIDTH:
+            if x == int(SAMPLE_RATE/freqFromCode(60)):#WIDTH:
                 x = 0
                 frame += 1
                 # print(frame)
@@ -135,8 +153,9 @@ try:
             
             
             if x % 6 == 0:
-                y = int((v + 0.5) * HEIGHT)
-                pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-6,y0), (x,y))
+                y = int((v + .5) * HEIGHT)
+                # pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-6,y0), (x,y))
+                pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
                 y0 = y
             # SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
             
