@@ -1,6 +1,3 @@
-## First
-- Better refactory of volume system
-
 ## Octave extension
 - Add "interval extension" to define an octave extension (settings and implementation)
 
@@ -10,4 +7,9 @@
 - Make generator of signals/oscillators with parametric frequences. I.E. write osc = Sin() or osc = SawTooth() and then call osc(freq) to return an actual oscillator (good idea?)
 
 ## "GUI"
-- show exactly one period (440Hz or base note) on the oscilloscope view?
+- Show exactly one period (440Hz or base note) on the oscilloscope view (already done in spheric oscilloscope)
+
+## Various
+- Make properties pluggable
+- Add stereo
+- Make sound source parametric to move it
