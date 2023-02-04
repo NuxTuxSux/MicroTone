@@ -1,6 +1,10 @@
 import pygame
 from pygame import midi
 
+import math
+
+import colorsys
+
 import pyaudio
 
 from oscillators import *
@@ -24,7 +28,31 @@ SAMPLE_RATE = Oscillator.SAMPLE_RATE
 # Pyaudio initialization
 st = pyaudio.PyAudio().open(SAMPLE_RATE, 1, pyaudio.paInt16, output = True, frames_per_buffer = AUDIO_BUFFER)
 
+## test
+def hsv_to_rgb(h, s, v):
+    c = v * s
+    x = c * (1 - abs((h / 60) % 2 - 1))
+    m = v - c
 
+    if h >= 0 and h < 60:
+        r, g, b = (c, x, 0)
+    elif h >= 60 and h < 120:
+        r, g, b = (x, c, 0)
+    elif h >= 120 and h < 180:
+        r, g, b = (0, c, x)
+    elif h >= 180 and h < 240:
+        r, g, b = (0, x, c)
+    elif h >= 240 and h < 300:
+        r, g, b = (x, 0, c)
+    else:
+        r, g, b = (c, 0, x)
+
+    r = int((r + m) * 255)
+    g = int((g + m) * 255)
+    b = int((b + m) * 255)
+
+    return (r, g, b)
+## /test
 
 
 MAX_VOL = .9
@@ -115,11 +143,11 @@ try:
                     playback.add(
                         Combine(
                             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            SawTooth(freqFromCode(note)),
+                            Square(freqFromCode(note)),
                             # SawTooth(freqFromCode(note)),
-                            # Triangle(3),
+                            # Triangle(10),
                             # by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
-                            by = Oscillator.control
+                            # by = Oscillator.control
                         )
                     )
 
@@ -153,9 +181,17 @@ try:
             
             
             if x % 6 == 0:
-                y = int((v + .5) * HEIGHT)
+                # y = int((v + .5) * HEIGHT)
+                y = (v + .5) * HEIGHT
                 # pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-6,y0), (x,y))
-                pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
+                
+                r, g, b = hsv_to_rgb(72*(y-y0), 1, 1)
+                colore = pygame.Color(r, g, b)
+
+                # if y-y0:
+                    # print(y-y0)                
+                pygame.draw.line(SCREEN, colore, sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
+                # pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
                 y0 = y
             # SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
             
