@@ -3,7 +3,6 @@ from pygame import midi
 
 import math
 
-import colorsys
 
 import pyaudio
 
@@ -21,8 +20,9 @@ pygame.init()
 
 # open the window
 WIDTH, HEIGHT = 800, 600
+# SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-AUDIO_BUFFER = 256 * 4
+AUDIO_BUFFER = 256 * 3
 SAMPLE_RATE = Oscillator.SAMPLE_RATE
 
 # Pyaudio initialization
@@ -55,8 +55,8 @@ def hsv_to_rgb(h, s, v):
 ## /test
 
 
-MAX_VOL = .9
-OSCILLATOR_AMP = .3
+MAX_VOL = 0.8
+OSCILLATOR_AMP = .2
 SETTINGS = {}
 CODES = {}
 freqFromCode = None
@@ -113,7 +113,7 @@ def mymean(args):
         return 0
 
 try:
-    playback = Combine(completeInput = False)
+    playback = Combine(completeInput = False, by = np.sum)
     # filteredPlayback = AverageWindow(playback)
 
     keysignals = {}
@@ -143,11 +143,11 @@ try:
                     playback.add(
                         Combine(
                             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            Square(freqFromCode(note)),
+                            Sine(freqFromCode(note)),
                             # SawTooth(freqFromCode(note)),
                             # Triangle(10),
                             # by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
-                            # by = Oscillator.control
+                            by = Oscillator.control
                         )
                     )
 
@@ -186,10 +186,8 @@ try:
                 # pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-6,y0), (x,y))
                 
                 r, g, b = hsv_to_rgb(72*(y-y0), 1, 1)
+                
                 colore = pygame.Color(r, g, b)
-
-                # if y-y0:
-                    # print(y-y0)                
                 pygame.draw.line(SCREEN, colore, sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
                 # pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
                 y0 = y
@@ -200,7 +198,7 @@ try:
         st.write(np.int16(buffer).tobytes())
 
             
-        if frame >= 4:
+        if frame >= 10:
             frame = 0
             pygame.display.flip()
             SCREEN.fill(pygame.Color(0,0,0))

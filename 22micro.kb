@@ -1,0 +1,25 @@
+# quantomeno sul mio dove il primo tasto pare che sia BACKQUOTE
+# Tastiera per scala a 22 toni (naturale fino ad ottavo livello)
+a: 60
+w: 61
+s: 62
+e: 63
+d: 64
+r: 65
+f: 66
+t: 67
+g: 68
+y: 69
+h: 70
+u: 71
+j: 72
+i: 73
+k: 74
+o: 75
+l: 76
+p: 77
+SEMICOLON: 78
+LEFTBRACKET: 79
+QUOTE: 80
+RIGHTBRACKET: 81
+HASH: 82

@@ -1,7 +1,10 @@
-KeyCodes: dodecaphonic.kb
-FreqsSystem: "lambda n: 8.2 * np.power(2, n/12)"
+KeyCodes: 22micro.kb
+FreqsSystem: "lambda n: 8.2 * 32 * [1.0, 1.125, 1.143, 1.167, 1.2, 1.25, 1.286, 1.333, 1.375, 1.4, 1.429, 1.5, 1.571, 1.6, 1.625, 1.667, 1.714, 1.75, 1.8, 1.833, 1.857, 1.875, 2][n-60]"
 
-ALen: 1000
-DLen: 1000
+# KeyCodes: dodecaphonic.kb
+# FreqsSystem: "lambda n: 8.2 * np.power(2, n/12)"
+
+ALen: 500
+DLen: 500
 SLev: 0.5
-RLen: 30000
+RLen: 20000

@@ -154,7 +154,10 @@ class Combine(Signal):
 
 
         self.signals = ss
-        self.setVal(self.by(vs))
+        if len(vs):
+            self.setVal(self.by(vs))
+        else:
+            self.setVal(0)
 
 class ADSREnvelope(Signal):
     # NOTE: Optimize this
