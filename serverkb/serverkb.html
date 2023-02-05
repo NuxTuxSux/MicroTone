@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+        .keyboard {
+          width: 80%;
+          height: 300px;
+          margin: 0 auto;
+          display: flex;
+          flex-wrap: wrap;
+        }
+        .white-key {
+          width: calc(100% / 7);
+          height: 100%;
+          background-color: white;
+          position: relative;
+        }
+        .black-key {
+          width: calc(100% / 14 * 2 / 3);
+          height: calc(100% / 2);
+          background-color: black;
+          position: absolute;
+          left: calc(100% / 7 * 2 / 3);
+          top: -1vw;
+        }
+      </style>
+      
+  </head>
+  <body>
+    <div id="keyboard">
+      <!-- White keys -->
+      <div class="white" style="left: 0px;"></div>
+      <div class="key-white" style="left: 50px;"></div>
+      <div class="keywhite" style="left: 100px;"></div>
+      <!-- Black keys -->
+      <div class="key black" style="left: 25px;"></div>
+      <div class="key black" style="left: 75px;"></div>
+    </div>
+  </body>
+</html>

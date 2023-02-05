@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #map {
+        width: 500px;
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <div id="map-container"> -->
+        <object id="keyboard" data="keyboard.svg" type="image/svg+xml"/></object>
+    <!-- </div> -->
+
+    <script>
+        const keyboard = document.getElementById("keyboard");
+
+        document.addEventListener("load",function(){
+            // get the inner DOM of alpha.svg
+            var svgDoc = keyboard.contentDocument;
+            // get the inner element by id
+            var delta = svgDoc.getElementById("rect2328");
+            // add behaviour
+            delta.addEventListener("click",function(){
+                alert('hello world!')
+            }, false);
+        
+        }, false);
+    </script>
+  </body>
+</html>
+
+
+
+
+

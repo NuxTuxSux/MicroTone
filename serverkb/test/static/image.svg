@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">
+  <rect x="100" y="100" width="100" height="100" fill="blue"
+        onclick="submitData(this.id)" id="rect1"/>
+  <script>
+    function submitData(id) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/submit", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.send("svg_element_data=" + id);
+    }
+  </script>
+</svg>
