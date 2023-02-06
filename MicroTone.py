@@ -136,17 +136,24 @@ try:
                     # get the note corresponding to pressed key
                     note = CODES[event.key]
 
-                    # NOTE: DEFINE THE KEYSIGNALS AND USE THEM TO CONTROL THE OSCILLATORS
                     kSign = Constant(1)
                     keysignals[event.key] = kSign
                     
                     playback.add(
+                        # Combine(
+                        #     ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
+                        #     Square(freqFromCode(note)),
+                        #     Triangle(freqFromCode(note)),
+                        #     # Triangle(10),
+                        #     by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
+                        #     # by = Oscillator.control
+                        # )
                         Combine(
                             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            Sine(freqFromCode(note)),
-                            # SawTooth(freqFromCode(note)),
+                            SawTooth(freqFromCode(note)),
+                            # Square(32*freqFromCode(note)),
                             # Triangle(10),
-                            # by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
+                            # by = lambda sigs: Signal.control([sigs[0], sigs[1] + 0.2*sigs[2]])
                             by = Oscillator.control
                         )
                     )

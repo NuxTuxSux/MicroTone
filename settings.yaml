@@ -4,7 +4,7 @@ FreqsSystem: "lambda n: 8.2 * 32 * [1.0, 1.125, 1.143, 1.167, 1.2, 1.25, 1.286, 
 # KeyCodes: dodecaphonic.kb
 # FreqsSystem: "lambda n: 8.2 * np.power(2, n/12)"
 
-ALen: 500
-DLen: 500
+ALen: 12000
+DLen: 1000
 SLev: 0.5
-RLen: 20000
+RLen: 30000
