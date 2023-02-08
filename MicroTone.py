@@ -1,13 +1,16 @@
+import os
+# :D
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 import pygame
-from pygame import midi
-
-import math
-
 
 import pyaudio
 
 from oscillators import *
 from signals import Combine, Constant, ADSR, ADSREnvelope, Incremental, Signal
+from events import EventGenerator, LocalKeyboard, Join
+
+from keyboardserver.kbserver import RemoteKeyboard
 # from filters import AverageWindow
 
 import numpy as np
@@ -15,18 +18,51 @@ import numpy as np
 from itertools import count
 
 import yaml
-# Pygame initialization
-pygame.init()
+
 
 # open the window
 WIDTH, HEIGHT = 800, 600
-# SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+FULLSCREEN = False
+
 AUDIO_BUFFER = 256 * 3
 SAMPLE_RATE = Oscillator.SAMPLE_RATE
 
-# Pyaudio initialization
-st = pyaudio.PyAudio().open(SAMPLE_RATE, 1, pyaudio.paInt16, output = True, frames_per_buffer = AUDIO_BUFFER)
+
+
+MAX_VOL = 0.8
+OSCILLATOR_AMP = .2
+SETTINGS = {}
+CODES = {}
+freqFromCode = None
+
+
+
+def loadSettings(settingsfile):
+    global SETTINGS, freqFromCode
+    # load general settings
+    with open(settingsfile, 'r') as f:
+        SETTINGS = yaml.unsafe_load(f)
+    
+    
+    # load function to get frequency from the keycode
+    freqFromCode = eval(SETTINGS['FreqsSystem'])
+    
+
+def sphericalOscScope(t,v):
+    R = 200
+    T0 = SAMPLE_RATE/freqFromCode(60)    # sistemare
+    ex = 400
+    ey  = 300
+    ez = -800
+
+    x = R * np.cos(np.pi*2*v/HEIGHT)*np.cos(2*np.pi*t/T0)
+    y = R * np.sin(np.pi*2*v/HEIGHT)
+    z = R * np.cos(np.pi*2*v/HEIGHT)*np.sin(2*np.pi*t/T0)
+    
+    l = ez/(ez-z)
+    xp = ex + (l * x - ex) + ex
+    yp = ey + (l * y - ey) + ey
+    return (xp, yp)
 
 ## test
 def hsv_to_rgb(h, s, v):
@@ -55,90 +91,45 @@ def hsv_to_rgb(h, s, v):
 ## /test
 
 
-MAX_VOL = 0.8
-OSCILLATOR_AMP = .2
-SETTINGS = {}
-CODES = {}
-freqFromCode = None
+if __name__ == "__main__":
+    # Pygame initialization
+    pygame.init()
 
 
+    SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN) if FULLSCREEN else pygame.display.set_mode((WIDTH, HEIGHT))
+
+    # Pyaudio initialization
+    st = pyaudio.PyAudio().open(SAMPLE_RATE, 1, pyaudio.paInt16, output = True, frames_per_buffer = AUDIO_BUFFER)
 
 
-def loadSettings(settingsfile):
-    global SETTINGS, CODES, freqFromCode
-    # load general settings
-    with open(settingsfile, 'r') as f:
-        SETTINGS = yaml.unsafe_load(f)
-    
-    # load keycodes
-    with open(SETTINGS['KeyCodes'], 'r') as f:
-        kcds = yaml.safe_load(f)
-        for keyname in kcds:
-            CODES[getattr(pygame, 'K_' + str(keyname))] = kcds[keyname]
-    
-    # load function to get frequency from the keycode
-    freqFromCode = eval(SETTINGS['FreqsSystem'])
-    
+    loadSettings('settings.yaml')
 
-def sphericalOscScope(t,v):
-    R = 200
-    T0 = SAMPLE_RATE/freqFromCode(60)    # sistemare
-    ex = 400
-    ey  = 300
-    ez = -800
-
-    x = R * np.cos(np.pi*2*v/HEIGHT)*np.cos(2*np.pi*t/T0)
-    y = R * np.sin(np.pi*2*v/HEIGHT)
-    z = R * np.cos(np.pi*2*v/HEIGHT)*np.sin(2*np.pi*t/T0)
-    
-    l = ez/(ez-z)
-    xp = ex + (l * x - ex) + ex
-    yp = ey + (l * y - ey) + ey
-    return (xp, yp)
+    x = 0
+    y0 = 0
 
 
+    try:
+        playback = Combine(completeInput = False, by = np.sum)
+        # filteredPlayback = AverageWindow(playback)
 
+        keysignals = {}
+        # main loop
+        done = False
+        frame = 0
 
-loadSettings('settings.yaml')
+        # pyeventgen = LocalKeyboard(pygame)
+        pyeventgen = Join(LocalKeyboard(pygame), RemoteKeyboard())
 
-x = 0
-y0 = 0
-
-# recording = []
-
-def mymean(args):
-    if len(args):
-        return np.mean(args)
-    else:
-        return 0
-
-try:
-    playback = Combine(completeInput = False, by = np.sum)
-    # filteredPlayback = AverageWindow(playback)
-
-    keysignals = {}
-    # main loop
-    done = False
-    frame = 0
-
-    while not done:
-        # event handling
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True
-            if event.type == pygame.KEYDOWN:
-                # check for ESC keypress
-                if event.key == pygame.K_ESCAPE:
+        while not done:
+            # event handling
+            for event in pyeventgen.get():
+                if event == EventGenerator.END:
                     done = True
-
-                # check if the pressed key is in our keyboard dict
-                if event.key in CODES:
-                    # get the note corresponding to pressed key
-                    note = CODES[event.key]
-
-                    kSign = Constant(1)
-                    keysignals[event.key] = kSign
+                elif event[0] == 'KEY_DOWN':
                     
+                    kSign = Constant(1)
+                    keysignals[event[1]] = kSign
+                        
                     playback.add(
                         # Combine(
                         #     ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
@@ -150,7 +141,7 @@ try:
                         # )
                         Combine(
                             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            SawTooth(freqFromCode(note)),
+                            SawTooth(freqFromCode(event[1])),
                             # Square(32*freqFromCode(note)),
                             # Triangle(10),
                             # by = lambda sigs: Signal.control([sigs[0], sigs[1] + 0.2*sigs[2]])
@@ -158,62 +149,47 @@ try:
                         )
                     )
 
-            if event.type == pygame.KEYUP:
-                if event.key in CODES:
+                elif event[0] == 'KEY_UP':
                     # remove oscillator for released key
-                    kSign = keysignals[event.key]
+                    kSign = keysignals[event[1]]
                     kSign.setVal(None)
-            
-            # NOTE: maybe one can take this off. keysignals don't grow much
-            # keysignals = dict((k,v) for (k,v) in keysignals.items() if v.val)
-
-        # write to audio out
-        buffer = []
-        for _ in range(AUDIO_BUFFER):
-            # NOTE: before here there was a check for next value not being None, now it should be useless
-            # moreover I was converting the output to int via int() but I guess numpy was doing the job immediately after
-            # v = max(-MAX_VOL, min(next(playback) * OSCILLATOR_AMP, MAX_VOL))
-
-            v = next(playback) * OSCILLATOR_AMP
-
-            buffer.append(v * 32767)
-            # recording.append(v * 32767)
-
-            if x == int(SAMPLE_RATE/freqFromCode(60)):#WIDTH:
-                x = 0
-                frame += 1
-                # print(frame)
-
-            x += 1
-            
-            
-            if x % 6 == 0:
-                # y = int((v + .5) * HEIGHT)
-                y = (v + .5) * HEIGHT
-                # pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-6,y0), (x,y))
                 
-                r, g, b = hsv_to_rgb(72*(y-y0), 1, 1)
+                # NOTE: maybe one can take this off. keysignals don't grow much
+                # keysignals = dict((k,v) for (k,v) in keysignals.items() if v.val)
+
+            # write to audio out
+            buffer = []
+            for _ in range(AUDIO_BUFFER):
                 
-                colore = pygame.Color(r, g, b)
-                pygame.draw.line(SCREEN, colore, sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
-                # pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
-                y0 = y
-            # SCREEN.set_at((x, y), pygame.Color(20, 200, 30))
-            
-            
+                v = next(playback) * OSCILLATOR_AMP
 
-        st.write(np.int16(buffer).tobytes())
+                buffer.append(v * 32767)
+                
+                if x == int(SAMPLE_RATE/freqFromCode(60)):#WIDTH:
+                    x = 0
+                    frame += 1
+                
+                x += 1
+                
+                if x % 6 == 0:
+                    y = (v + .5) * HEIGHT
+                    # pygame.draw.line(SCREEN, pygame.Color(20, 200, 30), (x-6,y0), (x,y))
+                    
+                    r, g, b = hsv_to_rgb(72*(y-y0), 1, 1)
+                    
+                    pygame.draw.line(SCREEN, pygame.Color(r, g, b), sphericalOscScope(x-6,y0), sphericalOscScope(x,y))
+                    y0 = y
 
-            
-        if frame >= 10:
-            frame = 0
-            pygame.display.flip()
-            SCREEN.fill(pygame.Color(0,0,0))
+            st.write(np.int16(buffer).tobytes())
+                
+            if frame >= 10:
+                frame = 0
+                pygame.display.flip()
+                SCREEN.fill(pygame.Color(0,0,0))
 
 
+    except KeyboardInterrupt as err:
+        st.close()
 
-except KeyboardInterrupt as err:
-    st.close()
-
-# close pygame
-pygame.quit()
+    # close pygame
+    pygame.quit()

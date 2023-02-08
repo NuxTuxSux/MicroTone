@@ -1,15 +1,12 @@
-## Octave extension
-- Add "interval extension" to define an octave extension (settings and implementation)
-
 ## Oscillators
-- Define common oscillators
-- Maybe we should not differenciate between oscillators and signals! One could define a subclass FunctionSignal <: Signal to make a signal out of a generating function.
-- Make generator of signals/oscillators with parametric frequences. I.E. write osc = Sin() or osc = SawTooth() and then call osc(freq) to return an actual oscillator (good idea?)
+- Make signals with parametric frequencies and parameters. I.E. write osc = Sin() and then call osc(freq) to return an actual oscillator (good idea?)
 
 ## "GUI"
-- Show exactly one period (440Hz or base note) on the oscilloscope view (already done in spheric oscilloscope)
+- Implement remote flask keyboard
 
 ## Various
+- Decouple oscillator from synth code and make parameters explicit (bind it with current pygame instance)
+- Add "interval extension" to define an octave extension (settings and implementation)
 - Make properties pluggable
 - Add stereo
-- Make sound source parametric to move it
+> - Make sound source parametric to move it
