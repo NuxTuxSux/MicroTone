@@ -29,7 +29,7 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="12.690353"
-     inkscape:cx="27.304205"
+     inkscape:cx="28.289205"
      inkscape:cy="13.593002"
      inkscape:window-width="1792"
      inkscape:window-height="997"
@@ -69,135 +69,109 @@
        d="m 45.120509,124.28096 0.111001,19.91914 3.877936,0.0272 -0.0017,-3.98995 -1.450046,-0.008 0.0052,-15.96702 z"
        sodipodi:nodetypes="ccccccc"
        inkscape:label="g6"
-       id="K_0"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"/>
+       id="K_0" />
     <path
        style="fill:#9d6ee2;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 58.260064,124.28551 -0.07167,19.75648 -3.915717,-0.0218 -0.02578,-3.79583 1.410793,-0.009 0.05995,-15.94915 z"
        id="K_4"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccccc"
        inkscape:label="g5" />
     <path
        style="fill:#f422a3;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 47.654201,124.26117 0.0059,15.93332 2.725053,0.0137 0.0022,-15.95087 z"
        id="K_1"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       onmousedown="sendEvent(this.id,'on')"
+       onmouseup="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccc"
        inkscape:label="n6" />
     <path
        style="fill:#f422a3;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 52.917988,124.26023 0.01718,15.95306 2.713816,-0.006 0.0022,-15.95087 z"
        id="K_3"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       onmousedown="sendEvent(this.id,'on')"
+       onmouseup="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccc"
        inkscape:label="n5" />
     <path
        style="fill:#f422a3;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 64.748621,124.31165 0.0144,15.9612 2.713816,-0.006 0.0022,-15.95087 z"
-       id="K_7"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       id="path903-3-7"
        sodipodi:nodetypes="ccccc"
        inkscape:label="n4" />
     <path
        style="fill:#4253d1;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 50.340375,124.24963 2.537987,0.006 0.0042,15.96088 1.361318,0.009 0.03119,3.79528 3.907413,0.0112 -0.0054,4.14487 -13.009951,-0.0733 0.06902,-3.89553 3.863104,0.0242 6.9e-4,-4.0105 1.2179,-0.016 z"
        id="K_2"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       onmousedown="sendEvent(this.id,'on')"
+       onmouseup="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccccccccccc"
        inkscape:label="b5" />
     <path
        style="fill:#9d6ee2;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 58.291878,124.30501 3.874167,0.007 -0.01327,19.71238 -3.967807,-0.005 z"
        id="K_5"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       onmousedown="sendEvent(this.id,'on')"
+       onmouseup="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccc"
        inkscape:label="g4" />
     <path
        style="fill:#4253d1;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 62.185237,124.31228 2.538848,-0.009 0.01497,15.95226 1.438526,0.0185 0.003,7.89612 -8.003738,0.002 0.03114,-4.1269 3.943784,-0.029 z"
        id="K_6"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccccccc"
        inkscape:label="b4" />
     <path
        style="fill:#9d6ee2;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 92.455815,124.30204 -0.093,19.91705 -3.877936,0.0272 0.0097,-3.98496 1.362132,-0.0537 0.05667,-15.92429 z"
-       id="K_16"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       id="path115-5"
        sodipodi:nodetypes="ccccccc"
        inkscape:label="g3" />
     <path
        style="fill:#9d6ee2;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 79.31626,124.30659 -0.0039,19.8119 4.012553,0.0132 0.0032,-3.81512 -1.463476,-0.0284 -0.006,-16.0003 z"
        id="K_12"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccccc"
        inkscape:label="g2" />
     <path
        style="fill:#f422a3;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 89.922123,124.28225 -0.01718,15.95306 -2.713816,-0.006 -0.0022,-15.95087 z"
-       id="K_15"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       id="path903-5"
        sodipodi:nodetypes="ccccc"
        inkscape:label="n3" />
     <path
        style="fill:#f422a3;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 84.658336,124.28131 -0.01718,15.95306 -2.713816,-0.006 -0.0022,-15.95087 z"
        id="K_13"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccc"
        inkscape:label="n2" />
     <path
        style="fill:#f422a3;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 72.827703,124.33273 0.01094,15.98654 -2.739152,-0.0313 -0.0022,-15.95087 z"
-       id="K_9"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       id="path903-3-7-2"
        sodipodi:nodetypes="ccccc"
        inkscape:label="n1" />
     <path
        style="fill:#4253d1;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 87.235949,124.27071 -2.537987,0.006 -0.0042,15.96088 -1.337691,-0.003 -0.06296,3.89934 -3.952364,-0.0301 -0.02067,4.06501 13.070984,-0.029 -0.0216,-3.88645 -3.89107,-0.0247 0.01003,-3.98311 -1.229968,-0.0186 z"
        id="K_14"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccccccccccc"
        inkscape:label="b3" />
     <path
        style="fill:#9d6ee2;fill-opacity:1;stroke:#000000;stroke-width:0.265;stroke-dasharray:none;stroke-opacity:1"
        d="m 79.284446,124.32609 -3.874167,0.007 -0.01075,19.79337 3.904173,-0.009 z"
        id="K_11"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccc"
        inkscape:label="g1" />
     <path
        style="fill:#4253d1;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 75.391087,124.33336 -2.538848,-0.009 -0.04031,15.9776 -1.387854,0.0185 -0.01105,7.82603 7.924473,0.0416 -0.04088,-4.0627 -3.915331,-0.008 z"
        id="K_10"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
        sodipodi:nodetypes="ccccccccc"
        inkscape:label="b2" />
     <path
        style="fill:#4253d1;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
        d="m 67.506234,124.30563 -0.03238,15.95921 -1.325123,0.0178 0.0019,7.87637 5.259766,-0.0105 0.01937,-7.85473 -1.305259,-0.0293 -0.03382,-15.89943 z"
-       id="K_8"
-       ontouchstart="sendEvent(this.id,'on')"
-       ontouchend="sendEvent(this.id,'off')"
+       id="path1910"
        sodipodi:nodetypes="ccccccccc"
        inkscape:label="b1"
        inkscape:export-filename="tastiera.png"

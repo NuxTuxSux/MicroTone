@@ -1,8 +1,10 @@
 import os
+import pygame
+
+
 # :D
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
-import pygame
 
 import pyaudio
 
@@ -91,7 +93,31 @@ def hsv_to_rgb(h, s, v):
 ## /test
 
 
+def defaultKeySound(keySignal, frequency):
+    return Combine(
+            ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = keySignal),
+            SawTooth(frequency),
+            # Square(32*freqFromCode(note)),
+            # Triangle(10),
+            # by = lambda sigs: Signal.control([sigs[0], sigs[1] + 0.2*sigs[2]])
+            by = Oscillator.control
+        )
+
+## just a beautiful sound. Temporally wrote down here
+# Combine(
+                        #     ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
+                        #     Square(freqFromCode(note)),
+                        #     Triangle(freqFromCode(note)),
+                        #     # Triangle(10),
+                        #     by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
+                        #     # by = Oscillator.control
+                        # )
+##
+
+
+
 if __name__ == "__main__":
+
     # Pygame initialization
     pygame.init()
 
@@ -110,15 +136,16 @@ if __name__ == "__main__":
 
     try:
         playback = Combine(completeInput = False, by = np.sum)
-        # filteredPlayback = AverageWindow(playback)
-
+        
         keysignals = {}
-        # main loop
+        
+        # main loop ending flag
         done = False
         frame = 0
 
         # pyeventgen = LocalKeyboard(pygame)
         pyeventgen = Join(LocalKeyboard(pygame), RemoteKeyboard())
+        # pyeventgen = RemoteKeyboard()
 
         while not done:
             # event handling
@@ -129,32 +156,15 @@ if __name__ == "__main__":
                     
                     kSign = Constant(1)
                     keysignals[event[1]] = kSign
-                        
-                    playback.add(
-                        # Combine(
-                        #     ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                        #     Square(freqFromCode(note)),
-                        #     Triangle(freqFromCode(note)),
-                        #     # Triangle(10),
-                        #     by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
-                        #     # by = Oscillator.control
-                        # )
-                        Combine(
-                            ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = kSign),
-                            SawTooth(freqFromCode(event[1])),
-                            # Square(32*freqFromCode(note)),
-                            # Triangle(10),
-                            # by = lambda sigs: Signal.control([sigs[0], sigs[1] + 0.2*sigs[2]])
-                            by = Oscillator.control
-                        )
-                    )
+                    
+                    playback.add(defaultKeySound(kSign, freqFromCode(event[1])))
 
                 elif event[0] == 'KEY_UP':
                     # remove oscillator for released key
                     kSign = keysignals[event[1]]
                     kSign.setVal(None)
                 
-                # NOTE: maybe one can take this off. keysignals don't grow much
+                # NOTE: one could take this off. keysignals don't grow much
                 # keysignals = dict((k,v) for (k,v) in keysignals.items() if v.val)
 
             # write to audio out
@@ -186,10 +196,14 @@ if __name__ == "__main__":
                 frame = 0
                 pygame.display.flip()
                 SCREEN.fill(pygame.Color(0,0,0))
+        
+        # we're done
+        pyeventgen.close()
 
 
     except KeyboardInterrupt as err:
         st.close()
+        playback.close()
 
     # close pygame
     pygame.quit()

@@ -2,7 +2,7 @@
 - Make signals with parametric frequencies and parameters. I.E. write osc = Sin() and then call osc(freq) to return an actual oscillator (good idea?)
 
 ## "GUI"
-- Implement remote flask keyboard
+- Handle closing connection from remote keyboard
 
 ## Various
 - Decouple oscillator from synth code and make parameters explicit (bind it with current pygame instance)

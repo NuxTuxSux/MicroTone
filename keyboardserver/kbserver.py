@@ -1,54 +1,73 @@
-import sys
-import os
- 
-from flask import Flask, request, render_template
-# from multiprocessing import Process, Queue
-from queue import Queue
-from threading import Thread
-
-# getting the name of the directory
-# where the this file is present.
-current = os.path.dirname(os.path.realpath(__file__))
- 
-# Getting the parent directory name
-# where the current directory is present.
-parent = os.path.dirname(current)
- 
-# adding the parent directory to
-# the sys.path.
-sys.path.append(parent)
-
 from events import EventGenerator
+# import select
+import threading
+import socket
+
+
+SYNTH_PORT = 50000
+PACKET_SIZE = 8
+
+CODES = {
+    0: 58,
+    1: 59,
+    2: 60,
+    3: 61,
+    4: 62,
+    5: 63,
+    6: 64,
+    7: 65,
+    8: 66,
+    9: 67,
+    10: 68,
+    11: 69,
+    12: 70,
+    13: 71,
+    14: 72,
+    15: 73,
+    16: 74,
+    17: 75
+}
+
 
 class RemoteKeyboard(EventGenerator):
 
-    def startServer(queue):
-        server = Flask(__name__)
-        
-        @server.route('/')
-        def index():
-            return render_template('index.html')
-    
-        @server.route('/submit', methods=['POST'])
-        def submit():
-            print(queue.get())
-            data = request.get_data().decode('ascii')
-            print(data.split(':'))
-            return ""
-
-        server.run(debug = True, host = '0.0.0.0', port = 80)
-
-
-
     def __init__(self):
-        self.comm = Queue()
-        self.comm.put(23)
-        self.server = Thread(target = RemoteKeyboard.startServer, args = (self.comm,))
-        self.server.start()
+        self.messages = []
+        t = threading.Thread(target=self._startServer)
+        self.running = True
+        t.start()
 
-        
-        
+    def close(self):
+        self.running = False
+
+    def _startServer(self):
+        serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serverSocket.bind(('0.0.0.0', SYNTH_PORT))
+        serverSocket.listen()
+        print(f"Keyboard server waiting for connection on port {SYNTH_PORT}")
+        conn, address = serverSocket.accept()
+        print("Connected to {}".format(address))
+        while self.running:
+            data = conn.recv(1024)
+            if data != None:
+                self.messages.append(data.decode())
+
     
+    def _parseEvent(event):
+        code, event = event.split(':')
+        code = CODES[int(code[2:])]
+        event = event.strip()
+        if event == "on":
+            return EventGenerator.keyDown(code)
+        elif event == "off":
+            return EventGenerator.keyUp(code)
+        else:
+            return None         # for clarity
+        
+    def close(self):
+        self.running = False
+
     def get(self):
-        # print('cosa vuoi di già?')
-        return []
+        mess = self.messages.copy()
+        self.messages.clear()
+        return list(map(RemoteKeyboard._parseEvent, mess))

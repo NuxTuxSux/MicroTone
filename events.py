@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod, abstractproperty
-import pygame
 import yaml
 
 from flask import Flask, request, render_template
+import pygame
+
 
 
 SETTINGSFILE = 'settings.yaml'
@@ -14,14 +15,17 @@ class EventGenerator(ABC):
     # I use couple-events
     END = ('END', None)
 
-    def keyDown(self, code):
+    def keyDown(code):
         return ('KEY_DOWN', code)
     
-    def keyUp(self, code):
+    def keyUp(code):
         return ('KEY_UP', code)
             
     @abstractmethod
     def get(self):
+        pass
+
+    def close(self):
         pass
         
 
@@ -32,12 +36,17 @@ class Join(EventGenerator):
     
     def get(self):
         return self.EG1.get() + self.EG2.get()
+    
+    def close(self):
+        self.EG1.close()
+        self.EG2.close()
 
 class LocalKeyboard(EventGenerator):
+
     def __init__(self, pyG):
         # load keycodes
         self.CODES = {}
-        self.pygame = pyG
+        self.pygame = pyG       # NOTE: do we need to pass pygame?
         with open(SETTINGSFILE, 'r') as f:
             SETTINGS = yaml.unsafe_load(f)
             with open(SETTINGS['KeyCodes'], 'r') as f:
@@ -52,38 +61,16 @@ class LocalKeyboard(EventGenerator):
             if event.key == self.pygame.K_ESCAPE:
                 return EventGenerator.END
             if event.key in self.CODES:
-                return ('KEY_DOWN', self.CODES[event.key])
+                return EventGenerator.keyDown(self.CODES[event.key])
         elif event.type == self.pygame.KEYUP:
             if event.key in self.CODES:
-                return ('KEY_UP', self.CODES[event.key])
+                return EventGenerator.keyUp(self.CODES[event.key])
         else:
             # just to be more explicit
             return None
     
     def get(self):
         return list(filter(lambda x: x != None, map(self._parseEvent, self.pygame.event.get())))
-
-# class RemoteKeyboard(EventGenerator):
-    
-#     def __init__(self):
-#         self.server = Flask(__name__)
-
-#         @self.server.route('/')
-#         def index():
-#             return render_template('index.html')
-
-#         @self.server.route('/submit', methods=['POST'])
-#         def submit():
-#             data = request.get_data().decode('ascii')
-#             print(data.split(':'))
-#             return ""
-
-#         self.server.run(debug = True, host = '0.0.0.0', port = 80)
-    
-#     def get(self):
-#         print('cosa vuoi di già?')
-#         return []
-
 
 
         

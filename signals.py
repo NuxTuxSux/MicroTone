@@ -124,7 +124,7 @@ class Combine(Signal):
     # modificare in modo che elimini i segnali morti
     def __init__(self, *signals, by = np.sum, completeInput = True, **kwargs):
         super().__init__(**kwargs)
-        self.signals = signals
+        self.signals = list(signals)                        # I needed to add `list` only implementing RemoteKeyboard. One of the worst bug I ever met. Don't know why now works.
         self.by = by
         self.completeInput = completeInput
             
