@@ -97,9 +97,9 @@ def defaultKeySound(keySignal, frequency):
     return Combine(
             ADSREnvelope(SETTINGS['ALen'], SETTINGS['DLen'], SETTINGS['SLev'], SETTINGS['RLen'], control = keySignal),
             SawTooth(frequency),
-            # Square(32*freqFromCode(note)),
+            # Sine(4),
             # Triangle(10),
-            # by = lambda sigs: Signal.control([sigs[0], sigs[1] + 0.2*sigs[2]])
+            # by = lambda sigs: Signal.control([sigs[0], sigs[1] * sigs[2]])
             by = Oscillator.control
         )
 
@@ -143,8 +143,8 @@ if __name__ == "__main__":
         done = False
         frame = 0
 
-        # pyeventgen = LocalKeyboard(pygame)
-        pyeventgen = Join(LocalKeyboard(pygame), RemoteKeyboard())
+        pyeventgen = LocalKeyboard(pygame)
+        # pyeventgen = Join(LocalKeyboard(pygame), RemoteKeyboard())
         # pyeventgen = RemoteKeyboard()
 
         while not done:
